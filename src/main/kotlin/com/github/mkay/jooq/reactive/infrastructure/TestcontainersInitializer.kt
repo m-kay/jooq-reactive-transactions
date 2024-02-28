@@ -1,4 +1,4 @@
-package com.github.mkay.jooq.reactive
+package com.github.mkay.jooq.reactive.infrastructure
 
 import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationContextInitializer

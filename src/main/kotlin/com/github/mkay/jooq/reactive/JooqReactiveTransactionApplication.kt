@@ -1,5 +1,6 @@
 package com.github.mkay.jooq.reactive
 
+import com.github.mkay.jooq.reactive.infrastructure.TestcontainersInitializer
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 

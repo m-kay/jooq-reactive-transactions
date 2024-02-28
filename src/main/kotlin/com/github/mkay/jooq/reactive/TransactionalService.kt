@@ -1,4 +1,4 @@
-package com.github.mkay.jooq.reactive.infrastructure
+package com.github.mkay.jooq.reactive
 
 import com.github.mkay.jooq.tables.records.AddressesRecord
 import com.github.mkay.jooq.tables.records.PersonsRecord

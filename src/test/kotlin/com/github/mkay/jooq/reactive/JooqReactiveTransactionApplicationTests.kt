@@ -1,6 +1,6 @@
 package com.github.mkay.jooq.reactive
 
-import com.github.mkay.jooq.reactive.infrastructure.TransactionalService
+import com.github.mkay.jooq.reactive.infrastructure.TestcontainersInitializer
 import com.github.mkay.jooq.tables.references.PERSONS
 import org.assertj.core.api.Assertions.assertThat
 import org.jooq.DSLContext
