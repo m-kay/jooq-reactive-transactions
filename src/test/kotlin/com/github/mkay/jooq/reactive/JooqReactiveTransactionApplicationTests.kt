@@ -2,6 +2,7 @@ package com.github.mkay.jooq.reactive
 
 import com.github.mkay.jooq.reactive.infrastructure.TestcontainersInitializer
 import com.github.mkay.jooq.tables.references.PERSONS
+import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.jooq.DSLContext
 import org.jooq.exception.DataAccessException
@@ -56,6 +57,27 @@ class JooqReactiveTransactionApplicationTests {
         val count = r2dbc.databaseClient
             .sql("select count(*) as count from PERSONS WHERE id = ?")
             .bind(0, "213148")
+            .map { row -> row.get("count", Long::class.java) }
+            .first().block()!!
+
+        assertThat(count).isEqualTo(0)
+    }
+
+    @Test
+    fun `test transaction r2dbc coroutine`() {
+        assertThrows<DataAccessResourceFailureException> {
+            runBlocking {
+                transactionalService.transactionalInsertsWithR2dbcCoroutine(
+                    "423364", "Hans Muster",
+                    "434" to "Haupstrasse 10, 9000 St. Gallen",
+                    "345" to "Strasse",
+                )
+            }
+        }
+
+        val count = r2dbc.databaseClient
+            .sql("select count(*) as count from PERSONS WHERE id = ?")
+            .bind(0, "423364")
             .map { row -> row.get("count", Long::class.java) }
             .first().block()!!
 

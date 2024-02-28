@@ -4,6 +4,7 @@ import com.github.mkay.jooq.tables.records.AddressesRecord
 import com.github.mkay.jooq.tables.records.PersonsRecord
 import com.github.mkay.jooq.tables.references.ADDRESSES
 import com.github.mkay.jooq.tables.references.PERSONS
+import kotlinx.coroutines.reactor.awaitSingle
 import org.jooq.DSLContext
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate
 import org.springframework.stereotype.Service
@@ -42,22 +43,36 @@ class TransactionalService(
         personName: String,
         vararg addresses: Pair<String, String>
     ): Mono<Void> {
-        return r2dbc.databaseClient.sql("INSERT INTO PERSONS(id, name) values (?, ?)")
-            .bind(0, personId).bind(1, personName)
-            .fetch()
-            .rowsUpdated()
+        return insertPerson(personId, personName)
             .then(
                 insertAddresses(personId, listOf(*addresses))
             ).then()
     }
 
+    @Transactional
+    suspend fun transactionalInsertsWithR2dbcCoroutine(
+        personId: String,
+        personName: String,
+        vararg addresses: Pair<String, String>
+    ) {
+        insertPerson(personId, personName).awaitSingle()
+        insertAddresses(personId, listOf(*addresses)).awaitSingle()
+    }
+
+    private fun insertPerson(personId: String, personName: String) =
+        r2dbc.databaseClient.sql("INSERT INTO PERSONS(id, name) values (?, ?)")
+            .bind(0, personId).bind(1, personName)
+            .fetch()
+            .rowsUpdated()
+
     private fun insertAddresses(personId: String, addresses: List<Pair<String, String>>): Mono<Long> {
         var sql = r2dbc.databaseClient.sql(
-            "INSERT INTO ADDRESSES(id, personId, address) values ${addresses.joinToString(", ") { "(?, ?, ?)" }}")
+            "INSERT INTO ADDRESSES(id, personId, address) values ${addresses.joinToString(", ") { "(?, ?, ?)" }}"
+        )
         addresses.forEachIndexed { i, address ->
-            sql = sql.bind(i*3, address.first)
-            sql = sql.bind(i*3+1, personId)
-            sql = sql.bind(i*3+2, address.second)
+            sql = sql.bind(i * 3, address.first)
+            sql = sql.bind(i * 3 + 1, personId)
+            sql = sql.bind(i * 3 + 2, address.second)
         }
         return sql.fetch().rowsUpdated()
     }
