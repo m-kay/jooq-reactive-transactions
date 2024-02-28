@@ -22,7 +22,7 @@ class TransactionalService(
     fun transactionalInsertsWithJooq(
         personId: String,
         personName: String,
-        vararg adresses: Pair<String, String>
+        vararg addresses: Pair<String, String>
     ): Mono<Void> {
         return jooq.insertInto(PERSONS, PERSONS.ID, PERSONS.NAME)
             .valuesOfRecords(PersonsRecord(personId, personName))
@@ -30,7 +30,7 @@ class TransactionalService(
             .then(
                 jooq.insertInto(ADDRESSES, ADDRESSES.ID, ADDRESSES.PERSONID, ADDRESSES.ADDRESS)
                     .valuesOfRecords(
-                        adresses.map { AddressesRecord(it.first, personId, it.second) }
+                        addresses.map { AddressesRecord(it.first, personId, it.second) }
                     )
                     .toMono()
                     .then()
