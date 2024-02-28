@@ -1,0 +1,7 @@
+
+logging:
+  level:
+    com.github.mkay: DEBUG
+    org.springframework.transaction: DEBUG
+    org.springframework.r2dbc: DEBUG
+    io.asyncer.r2dbc.mysql: DEBUG
